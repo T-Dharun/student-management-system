@@ -7,13 +7,23 @@ const register = async (req,res) =>{
         const {error} = registerSchema.validate(user);
         if(error){
             console.log(error);
-            return res.status(400).json({message:error?.details[0]?.message});
+            return res.status(400).json({
+                status:false,
+                message:error?.details[0]?.message
+            });
         }
         const newUser = await userService.register(user);
-        return res.status(201).json({message:'user created successfully',user: newUser});
+        return res.status(201).json({
+            status:true,
+            message:'user created successfully',
+            user: newUser
+        });
     }
     catch(err){
-        return res.status(400).json({message:err.message})
+        return res.status(400).json({
+            status:false,
+            message:err.message
+        })
     }
 }
 
@@ -21,24 +31,55 @@ const verifyUser = async (req,res)=>{
     try{
         const {id} = req.params;
         const {token, user} = await userService.verifyUser(id);
-        return res.status(200).json({message:'user verified successfully',token,user})
+        //return res.status(200).json({message:'user verified successfully',token,user})
+        res.redirect('https://google.com');
     }
     catch(err){
         return res.status(400).json({message:err?.message});
     }
 }
+
 const login = async (req,res)=>{
     try{
         const user = req.body;
         const {error} = loginSchema.validate(user);
         if(error){
-            return res.status(400).json({message:error?.details[0]?.message});
+            return res.status(400).json({
+                status:false,
+                message:error?.details[0]?.message
+            });
         }
         const token = await userService.login(user);
-        return res.status(200).json({message:'user logged in successfully',token});
+        return res.status(200).json({
+            status:true,
+            message:'user logged in successfully',
+            token
+        });
     }
     catch(err){
-        return res.status(400).json({message:err?.message});
+        return res.status(400).json({
+            status:false,
+            message:err?.message
+        });
     }
 }
-module.exports = {register, login, verifyUser};
+
+const getUser = async(req,res)=>{
+    try{
+        const user = req?.user || {};
+        return res.status(200).json({
+            status:true,
+            message:'User fetched successfully',
+            user:user
+        })
+    }
+    catch(err){
+        return res.status(400).json({
+            status:400,
+            message:err?.message
+        })
+    }
+    
+}
+
+module.exports = {register, login, verifyUser, getUser};
